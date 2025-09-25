@@ -1,4 +1,4 @@
-WsiSSM: Weakly Supervised Learning with Subset-matching Strategy for WSI Classification & Segmentation
+WsiSSM: Weakly Supervised Learning with Subset-matching Strategy for Histopathology Whole Slide Images Classification and Segmentation
 
 Official PyTorch implementation of WsiSSM (Sparse-CAM backbone + Subset-Matching).
 
