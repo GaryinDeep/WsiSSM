@@ -1,3 +1,18 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+# --------------------------------------------------------
+# References:
+# timm: https://github.com/rwightman/pytorch-image-models/tree/master/timm
+# DeiT: https://github.com/facebookresearch/deit
+# MAE: https://github.com/facebookresearch/mae
+# --------------------------------------------------------
+#
+# Portions Copyright Prov-WsiSSM
+# Original File: https://github.com/facebookresearch/mae
+
 from functools import partial
 
 import os
@@ -11,7 +26,7 @@ from timm.models.registry import register_model
 import huggingface_hub
 
 from .pos_embed import get_2d_sincos_pos_embed
-from .torchscale.model.Net import make_net_from_name
+from .torchscale.model.LongNet import make_longnet_from_name
 
 
 class PatchEmbed(nn.Module):
@@ -36,7 +51,7 @@ class PatchEmbed(nn.Module):
         return x
 
 
-class NetViT(nn.Module):
+class LongNetViT(nn.Module):
     """
     Backbone of Vision Transformer for downstream tasks
 
@@ -45,9 +60,9 @@ class NetViT(nn.Module):
     in_chans: int
         The number of input channels, should be the tile encoding dimension 1536.
     embed_dim: int
-        The embedding dimension of the Net model.
+        The embedding dimension of the LongNet model.
     depth: int
-        The number of Net layers in the Net model.
+        The number of LongNet layers in the LongNet model.
     slide_ngrids: int
         The number of grids in the slide.
     tile_size: int
@@ -88,13 +103,13 @@ class NetViT(nn.Module):
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.register_buffer('pos_embed', torch.zeros(1, num_patches + 1, embed_dim), persistent=False)  # fixed sin-cos embedding
 
-        self.encoder_name = "Net_{}_layers_{}_dim".format(depth, embed_dim)
+        self.encoder_name = "LongNet_{}_layers_{}_dim".format(depth, embed_dim)
         if kwargs.get("mlp_ratio", 4.0) != 4.0:
             self.encoder_name += "_mlp{}".format(kwargs.get("mlp_ratio"))
         
         # get optimal segment length
         segment_length = self.get_optimal_segment_length(max_wsi_size, tile_size)
-        self.encoder = make_net_from_name(self.encoder_name, drop_path_rate=drop_path_rate, dropout=dropout, segment_length=segment_length)
+        self.encoder = make_longnet_from_name(self.encoder_name, drop_path_rate=drop_path_rate, dropout=dropout, segment_length=segment_length)
         self.norm = norm_layer(embed_dim)
         # --------------------------------------------------------------------------
 
@@ -177,17 +192,17 @@ class NetViT(nn.Module):
             Whether to return embeddings from all layers or not
         """
         # embed patches
-        x = self.patch_embed(x)
+        x = self.patch_embed(x) # [N, L, D]
 
         # get pos indices
         pos = self.coords_to_pos(coords, self.tile_size)  # [N, L]
 
-        x = x + self.pos_embed[:, pos, :].squeeze(0)
+        x = x + self.pos_embed[:, pos, :].squeeze(0) # [N, L, D]
 
         # append cls token
         cls_token = self.cls_token + self.pos_embed[:, :1, :]
         cls_tokens = cls_token.expand(x.shape[0], -1, -1)
-        x = torch.cat((cls_tokens, x), dim=1)
+        x = torch.cat((cls_tokens, x), dim=1) # [N, L+1, D]
 
         # apply Transformer blocks
         if all_layer_embed:
@@ -238,7 +253,7 @@ def create_model(pretrained: str, model_arch: str, in_chans: int, local_dir: str
             for k in unexpected_keys:
                 print("Unexpected ", k)
 
-        print("\033[92m Successfully Loaded Pretrained model from {} \033[00m".format(pretrained))
+        print("\033[92m Successfully Loaded Pretrained WsiSSM model from {} \033[00m".format(pretrained))
     else:
         print("\033[93m Pretrained weights not found at {}. Randomly initialized the model! \033[00m".format(local_path))
 
@@ -246,18 +261,18 @@ def create_model(pretrained: str, model_arch: str, in_chans: int, local_dir: str
 
 
 @register_model
-def slide_enc12l768d(**kwargs):
-    model = NetViT(embed_dim=768, depth=12, mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+def WsiSSM_slide_enc12l768d(**kwargs):
+    model = LongNetViT(embed_dim=768, depth=12, mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
 
 @register_model
-def slide_enc24l1024d(**kwargs):
-    model = NetViT(embed_dim=1024, depth=24, mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+def WsiSSM_slide_enc24l1024d(**kwargs):
+    model = LongNetViT(embed_dim=1024, depth=24, mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
 
 @register_model
-def slide_enc12l1536d(**kwargs):
-    model = NetViT(embed_dim=1536, depth=12, mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+def WsiSSM_slide_enc12l1536d(**kwargs):
+    model = LongNetViT(embed_dim=1536, depth=12, mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model

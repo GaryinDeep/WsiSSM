@@ -45,21 +45,21 @@ class ClassificationHead(nn.Module):
         latent_dim,
         feat_layer,
         n_classes=2,
-        model_arch="slide_enc12l768d",
-        pretrained=None,
+        model_arch="WsiSSM_slide_enc12l768d",
+        pretrained="hf_hub:prov-WsiSSM/prov-WsiSSM",
         freeze=False,
         **kwargs,
     ):
         super(ClassificationHead, self).__init__()
 
         # setup the slide encoder
-        self.feat_layer = [eval(x) for x in feat_layer.split("-")]
+        self.feat_layer = [eval(x) for x in feat_layer.split("-")] # 1
         self.feat_dim = len(self.feat_layer) * latent_dim
         self.slide_encoder = slide_encoder.create_model(pretrained, model_arch, in_chans=input_dim, **kwargs)
 
         # whether to freeze the pretrained model
         if freeze:
-            print("Freezing Pretrained model")
+            print("Freezing Pretrained WsiSSM model")
             for name, param in self.slide_encoder.named_parameters():
                 param.requires_grad = False
             print("Done")
@@ -80,10 +80,10 @@ class ClassificationHead(nn.Module):
         if len(images.shape) == 2:
             images = images.unsqueeze(0)
         assert len(images.shape) == 3
-        # forward slide encoder
-        img_enc = self.slide_encoder.forward(images, coords, all_layer_embed=True, return_encoder_feature=True) # (n_layer,B,L,D)
-        img_enc = [img_enc[i] for i in self.feat_layer] # [n,(B,L,D)]
-        img_enc = torch.cat(img_enc, dim=-1) # (B,L,n*D)
+        # forward WsiSSM slide encoder
+        img_enc = self.slide_encoder.forward(images, coords, all_layer_embed=True, return_encoder_feature=True) # (feat_layer,B,L,D)
+        img_enc = [img_enc[i] for i in self.feat_layer] # [feat_layer,(B,L,D)]
+        img_enc = torch.cat(img_enc, dim=-1) # (B,L,feat_layer*D)
         # classifier
         hidden_states = rearrange(img_enc, 'b l d -> b d l')
         if with_cam:
