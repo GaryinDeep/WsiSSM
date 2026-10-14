@@ -16,7 +16,7 @@ If pytorch is not work:
 
 `pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu118`
 
-Other dependencies (download from ):
+Other dependencies (download from https://drive.google.com/drive/folders/1ULi_lJZAdc4JwxzE-W_BefHAwzbuRMeW?usp=sharing):
 
 `cd ./data`
 
@@ -30,7 +30,7 @@ Other dependencies (download from ):
 
 `pip install  torch_spline_conv-1.2.2+pt23cu118-cp39-cp39-linux_x86_64.whl`
 
-Other necessary data (download from ):
+Other necessary data (download from https://drive.google.com/drive/folders/1ULi_lJZAdc4JwxzE-W_BefHAwzbuRMeW?usp=sharing):
 
 ./data/camelyon/dataset_csv/camelyon_16_17.csv
 
