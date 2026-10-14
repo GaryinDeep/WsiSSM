@@ -5,29 +5,43 @@ Official PyTorch implementation of WsiSSM (Sparse-CAM backbone + Subset-Matching
 A weakly supervised framework that unifies classification and segmentation on gigapixel whole-slide images (WSIs) using only slide-level labels. It achieves state-of-the-art segmentation among MIL methods while keeping strong diagnostic performance.
 
 # Environment
+
 `conda env create -f environment.yaml`
 
 If pytorch is not work:
+
 `pip uninstall torch torchvision -y`
+
 `pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu118`
 
 Other dependencies (download from ):
+
 `cd ./data`
+
 `pip install  flash_attn-2.6.3+cu118torch2.3cxx11abiFALSE-cp39-cp39-linux_x86_64.whl`
+
 `pip install  torch_cluster-1.6.3+pt23cu118-cp39-cp39-linux_x86_64.whl`
+
 `pip install  torch_scatter-2.1.2+pt23cu118-cp39-cp39-linux_x86_64.whl`
+
 `pip install  torch_sparse-0.6.18+pt23cu118-cp39-cp39-linux_x86_64.whl`
+
 `pip install  torch_spline_conv-1.2.2+pt23cu118-cp39-cp39-linux_x86_64.whl`
 
 Other necessary data (download from ):
+
 ./data/camelyon/dataset_csv/camelyon_16_17.csv
+
 ./data/model/config.json
+
 ./data/model/pytorch_model.bin
+
 ./data/model/slide_encoder.pth
 
 # Preprocessing
 
 Download and Place the images (from camelyon dataset) in the xxx\images folder,then:
+
 ```
 python 01_create_patches_fp.py \
 --source ./data/camelyon/camelyon_16_17/images \
@@ -53,6 +67,7 @@ CUDA_VISIBLE_DEVICES=0,1,2 python 02_extract_features_fp.py \
 ```
 
 Split dataset:
+
 ```
 python 03_create_splits_seq.py \
 --label_frac 1.0 \
@@ -66,10 +81,10 @@ python 03_create_splits_seq.py \
 --patient_strat
 ```
 
-
 # Train and evaluate 
 
 Stage1:
+
 ```
 CUDA_VISIBLE_DEVICES=2 python 04_train_gigapath_puzzle.py \
 --data_dir ./data/camelyon/FEATURES_dino \
@@ -99,6 +114,7 @@ CUDA_VISIBLE_DEVICES=2 python 04_train_gigapath_puzzle.py \
 ```
 
 stage2:
+
 ```
 CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=1 python 04_train_gigapath_puzzle.py \
 --data_dir ./data/camelyon/FEATURES_dino \
@@ -132,5 +148,7 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=1 python 04_train_gigapath_puzzle.py
 ```
 
 # Seg
+
 `python F_visual_cam.py`
+
 `python F_dice.py`
