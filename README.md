@@ -19,6 +19,12 @@ Other dependencies (download from ):
 `pip install  torch_sparse-0.6.18+pt23cu118-cp39-cp39-linux_x86_64.whl`
 `pip install  torch_spline_conv-1.2.2+pt23cu118-cp39-cp39-linux_x86_64.whl`
 
+Other necessary data (download from ):
+./data/camelyon/dataset_csv/camelyon_16_17.csv
+./data/model/config.json
+./data/model/pytorch_model.bin
+./data/model/slide_encoder.pth
+
 # Preprocessing
 
 Download and Place the images (from camelyon dataset) in the xxx\images folder,then:
