@@ -1,4 +1,4 @@
-## WsiSSM: Weakly Supervised Learning with Subset-matching Strategy for Histopathology Whole Slide Images Classification and Segmentation
+# WsiSSM: Weakly Supervised Learning with Subset-matching Strategy for Histopathology Whole Slide Images Classification and Segmentation
 
 Official PyTorch implementation of WsiSSM (Sparse-CAM backbone + Subset-Matching).
 
@@ -6,7 +6,7 @@ A weakly supervised framework that unifies classification and segmentation on gi
 
 Paper: https://openreview.net/pdf?id=VQWwM5ssWe
 
-# Environment
+## Environment
 
 `conda env create -f environment.yaml`
 
@@ -40,7 +40,7 @@ Other necessary data (download from ):
 
 ./data/model/slide_encoder.pth
 
-# Preprocessing
+## Preprocessing
 
 Download and Place the images (from camelyon dataset) in the xxx\images folder,then:
 
@@ -83,7 +83,7 @@ python 03_create_splits_seq.py \
 --patient_strat
 ```
 
-# Train and evaluate 
+## Train and evaluate 
 
 Stage1:
 
@@ -149,7 +149,7 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=1 python 04_train_gigapath_puzzle.py
 --save_best_eval loss
 ```
 
-# Seg
+## Seg
 
 `python F_visual_cam.py`
 
